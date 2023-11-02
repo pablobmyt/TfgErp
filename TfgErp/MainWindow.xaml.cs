@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace TfgErp
     public partial class MainWindow : Window
     {
         private int nextRow = 0;
-        private int nextColumn = 0;
+        private int nextCol = 0;
 
         private DispatcherTimer timer;
 
@@ -152,22 +153,69 @@ namespace TfgErp
 
         private void OnAddImageButtonClick(object sender, RoutedEventArgs e)
         {
-            string imagePath = "";
-            // Asegúrate de tener una ruta de imagen válida y las coordenadas deseadas para la fila y columna.
-            if (!String.IsNullOrEmpty(textBox.Text))
+
+            string url = textBox.Text;
+            if (!string.IsNullOrEmpty(url))
             {
-                imagePath = textBox.Text;
+                if (nextRow < 4 && nextCol < 4)
+                {
+                    LoadFavicon(url, nextRow, nextCol);
+
+                    // Actualizar la próxima posición disponible
+                    nextCol++;
+                    if (nextCol >= 4)
+                    {
+                        nextCol = 0;
+                        nextRow++;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("La parrilla está llena.");
+                }
             }
             else
             {
-                MessageBox.Show("algo ha ido mal con la recuperacion de la imagen");
+                MessageBox.Show("Por favor, ingresa una URL.");
             }
-            int row = 0;  // Cambia esto según la fila deseada.
-            int column = 0;  // Cambia esto según la columna deseada.
-
-            AddImageToGrid(imagePath, row, column);
         }
-    }
+
+        private void LoadFavicon(string url, int row, int col)
+        {
+            try
+            {
+                var client = new WebClient();
+                var uri = new Uri(new Uri(url), "/favicon.ico");
+                var faviconUrl = uri.AbsoluteUri;
+                var stream = client.OpenRead(faviconUrl);
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.StreamSource = stream;
+                bitmap.EndInit();
+
+                var imageWithUrl = new ImageWithUrl
+                {
+                    Url = url
+                };
+                imageWithUrl.SetImage(bitmap);
+
+                imageWithUrl.MouseLeftButtonUp += (sender, e) =>
+                {
+                    var browserWindow = new Browser();
+                    browserWindow.webBrowser.Navigate(((ImageWithUrl)sender).Url);
+                    browserWindow.Show();
+                };
+
+                Grid.SetRow(imageWithUrl, row);
+                Grid.SetColumn(imageWithUrl, col);
+                mainGrid.Children.Add(imageWithUrl);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al cargar el favicon: " + ex.Message);
+            }
+        }
+        }
 }
 
 
