@@ -12,22 +12,6 @@
 
 
     <Grid>
-        <Grid x:Name="ImageGrid" Margin="564,203,436,270">
-            <!-- Definición de filas y columnas -->
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-        </Grid>
-
-        <!-- Fondo oscurecido -->
         <Grid Name="fondoOscurecido" Background="#80000000" Visibility="Collapsed">
             <!-- Menú de inicio de sesión -->
             <Popup Name="menuInicioSesion" IsOpen="False" StaysOpen="True" Placement="Center" Opacity="0.7">
@@ -51,6 +35,43 @@
             </Popup>
 
         </Grid>
+
+        <Grid Name="mainGrid" Margin="476,244,272,210" RenderTransformOrigin="1.059,1.264">
+
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+
+        </Grid>
+        <Button Content="+" HorizontalAlignment="Left" Margin="994,128,0,0" VerticalAlignment="Top" Height="48" Width="58" Background="#00520A0A" FontFamily="Segoe UI Black" RenderTransformOrigin="-0.357,0.778" BorderBrush="#00707070" Click="OnAddImageButtonClick"/>
+
+        <Grid x:Name="ImageGrid" Margin="564,203,436,270">
+            <!-- Definición de filas y columnas -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+        </Grid>
+
+        <!-- Fondo oscurecido -->
+        
 
         <!-- Contenido principal -->
         <Grid>
@@ -107,7 +128,7 @@
             </Grid>
             <TextBox x:Name="textBox" Grid.Column="1" HorizontalAlignment="Left" Margin="752,136,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="236" Height="28"/>
             <TextBlock x:Name="HourText1" Grid.Column="1" Margin="771,42,20,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="48" Foreground="White"/>
+            <Button Grid.Column="1" Content="Button" HorizontalAlignment="Left" Margin="252,50,0,0" VerticalAlignment="Top" Height="56" Width="155" Click="OnAddImageButtonClick"/>
         </Grid>
-        <Button Content="+" HorizontalAlignment="Left" Margin="994,120,0,0" VerticalAlignment="Top" Height="48" Width="58" Background="#00520A0A" FontFamily="Segoe UI Black" RenderTransformOrigin="-0.357,0.778" BorderBrush="#00707070" Click="OnAddImageButtonClick"/>
     </Grid>
 </Window>
