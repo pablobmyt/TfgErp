@@ -6,129 +6,174 @@
         xmlns:local="clr-namespace:TfgErp"
         mc:Ignorable="d"
         Title="MainWindow" Height="771" Width="1664" WindowState="Maximized" WindowStyle="None">
-    <Window.Background>
-        <ImageBrush ImageSource="/Imagenes/Fondos/orilla.jpg"/>
-    </Window.Background>
 
 
     <Grid>
-        <Grid Name="fondoOscurecido" Background="#80000000" Visibility="Collapsed">
-            <!-- Menú de inicio de sesión -->
-            <Popup Name="menuInicioSesion" IsOpen="False" StaysOpen="True" Placement="Center" Opacity="0.7">
-                <Border Background="White" Width="300" Height="300" CornerRadius="5" BorderBrush="Transparent" BorderThickness="2">
-                    <!-- Contenido del menú de inicio de sesión -->
-                    <StackPanel>
-                        <Button Content="X" HorizontalAlignment="Right" Width="30" Height="30" Click="CerrarPopup_Click" Margin="0,5" />
-                        <TextBlock Text="Inicio de Sesión" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10"/>
-
-                        <!-- Texto y TextBox para el usuario -->
-                        <TextBlock Text="Usuario:" FontSize="16" Margin="10,0" />
-                        <TextBox x:Name="userNameText" Margin="10" />
-
-                        <!-- Texto y PasswordBox para la contraseña -->
-                        <TextBlock Text="Contraseña:" FontSize="16" Margin="10,0" />
-                        <PasswordBox x:Name="passWordText" Margin="10" />
-
-                        <Button Content="Iniciar Sesión" Click="IniciarSesion_Click" HorizontalAlignment="Center" Margin="10"/>
-                    </StackPanel>
-                </Border>
-            </Popup>
-
-        </Grid>
-
-        <Grid Name="mainGrid" Margin="476,244,272,210" RenderTransformOrigin="1.059,1.264">
-
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
 
 
-        </Grid>
-        <Button Content="+" HorizontalAlignment="Left" Margin="994,128,0,0" VerticalAlignment="Top" Height="48" Width="58" Background="#00520A0A" FontFamily="Segoe UI Black" RenderTransformOrigin="-0.357,0.778" BorderBrush="#00707070" Click="OnAddImageButtonClick"/>
+        <Grid Name="blurContainer">
+            <Grid.Effect>
+                <BlurEffect Radius="25"/>
+            </Grid.Effect>
 
-        <Grid x:Name="ImageGrid" Margin="564,203,436,270">
-            <!-- Definición de filas y columnas -->
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
 
-        </Grid>
 
-        <!-- Fondo oscurecido -->
-        
 
-        <!-- Contenido principal -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <!-- Columna para el cuadro de texto "Clima" -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Columna que se muestra/oculta -->
-            </Grid.ColumnDefinitions>
 
-            <!-- Cuadro de texto "Clima" y panel de información del clima -->
-            <Grid Name="climaGrid" MouseEnter="MostrarClima" MouseLeave="OcultarClima">
-                <!-- Cuadro de texto "Clima" -->
-                <TextBlock Name="cuadroClima"  Background="LightGray" Padding="5" Cursor="Hand" VerticalAlignment="Top" Margin="0,4,-97,0" Height="732" Opacity="0"/>
 
-                <!-- Panel que se muestra/oculta -->
-                <Grid Name="panelClima" Background="LightGray" Width="500" Height="400" Visibility="Collapsed">
-                    <Border Background="LightGray" CornerRadius="200">
-                        <!-- Contenido del sidePanel -->
-                        <StackPanel Margin="1,0,0,0">
-                            <TextBlock FontSize="20" FontWeight="Bold">Zaragoza</TextBlock>
-                            <StackPanel Margin="0,10">
-                                <TextBlock x:Name="latitudeText">Latitud:</TextBlock>
-                                <TextBlock x:Name="LatitudText"></TextBlock>
-                            </StackPanel>
-                            <StackPanel Margin="0,10">
-                                <TextBlock x:Name="lenghtText">Longitud:</TextBlock>
-                                <TextBlock x:Name="LongitudText"></TextBlock>
-                            </StackPanel>
-                            <StackPanel Margin="0,10">
-                                <TextBlock x:Name="hourTypeText">Zona Horaria:</TextBlock>
-                                <TextBlock x:Name="TimeZoneText"></TextBlock>
-                            </StackPanel>
-                            <StackPanel Margin="0,10">
-                                <TextBlock x:Name="elevationText">Elevación:</TextBlock>
-                                <TextBlock x:Name="ElevationText"></TextBlock>
-                            </StackPanel>
-                            <!-- StackPanel para mostrar la hora -->
-                            <StackPanel Margin="0,10">
-                                <TextBlock x:Name="hourText">Hora:</TextBlock>
-                                <TextBlock x:Name="HourText"></TextBlock>
-                            </StackPanel>
+            <Grid Name="fondoOscurecido" Visibility="Collapsed">
 
-                            <!-- StackPanel para mostrar la temperatura -->
-                            <StackPanel Margin="0,10">
-                                <TextBlock x:Name="temperatureText">Temperatura:</TextBlock>
-                                <TextBlock x:Name="TemperatureText"></TextBlock>
-                            </StackPanel>
+
+
+                <Popup Name="menuInicioSesion" IsOpen="True" StaysOpen="True" Placement="Center" AllowsTransparency="True">
+
+
+                    <Border Name="popupColour" Background="Transparent" Width="300" Height="300">
+
+
+                        <!-- Contenido del menú de inicio de sesión -->
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="Inicio de Sesión" FontSize="20" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="0,10" FontFamily="PF Das Grotesk Pro"/>
+
+                            <!-- Texto y TextBox para el usuario -->
+                            <TextBlock Text="Usuario:" Foreground="White" FontSize="16" Margin="10,0" FontFamily="PF Das Grotesk Pro"/>
+                            <TextBox x:Name="userNameText" Margin="10"  Background="#FF9C9C9C" Foreground="Black" BorderBrush="Gray"  FontFamily="PF Das Grotesk Pro" />
+
+                            <!-- Texto y PasswordBox para la contraseña -->
+                            <TextBlock Text="Contraseña:" Foreground="White" FontSize="16" Margin="10,0" FontFamily="PF Das Grotesk Pro"/>
+                            <PasswordBox x:Name="passWordText" Margin="10"  Background="#FF9C9C9C" Foreground="Black" BorderBrush="Gray"  FontFamily="PF Das Grotesk Pro"/>
+
+                            <Button Content="Iniciar Sesión" Click="IniciarSesion_Click" HorizontalAlignment="Center" Margin="10"/>
                         </StackPanel>
                     </Border>
-                </Grid>
+                </Popup>
 
 
             </Grid>
-            <TextBox x:Name="textBox" Grid.Column="1" HorizontalAlignment="Left" Margin="752,136,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="236" Height="28"/>
-            <TextBlock x:Name="HourText1" Grid.Column="1" Margin="771,42,20,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" FontSize="48" Foreground="White"/>
-            <Button Grid.Column="1" Content="Button" HorizontalAlignment="Left" Margin="252,50,0,0" VerticalAlignment="Top" Height="56" Width="155" Click="OnAddImageButtonClick"/>
+
+
+            <Grid Name="mainGrid" Margin="476,244,272,210" RenderTransformOrigin="1.059,1.264">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+
+            </Grid>
+            <Button Content="+" HorizontalAlignment="Left" Margin="994,128,0,0" VerticalAlignment="Top" Height="48" Width="58" Background="#00520A0A" FontFamily="Segoe UI Black" RenderTransformOrigin="-0.357,0.778" BorderBrush="#00707070" Click="OnAddImageButtonClick"/>
+
+            <Grid x:Name="ImageGrid" Margin="800,207,679,504">
+                <!-- Definición de filas y columnas -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+
+            </Grid>
+
+            <!-- Fondo oscurecido -->
+
+
+
+            <!-- Contenido principal -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Columna para el cuadro de texto "Clima" -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Columna que se muestra/oculta -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Cuadro de texto "Clima" y panel de información del clima -->
+                <Grid Name="climaGrid" MouseEnter="MostrarClima" MouseLeave="OcultarClima">
+                    <!-- Cuadro de texto "Clima" -->
+                    <TextBlock Name="cuadroClima"  Background="LightGray" Padding="5" Cursor="Hand" VerticalAlignment="Top" Margin="0,4,-97,0" Height="732" Opacity="0"/>
+
+
+
+
+                </Grid>
+                <TextBox x:Name="textBox" Grid.Column="1" HorizontalAlignment="Left" Margin="768,136,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="236" Height="28"/>
+            </Grid>
+
+
+            <!-- Panel que se muestra/oculta -->
+            <Grid Name="panelClima" Background="LightGray" Width="500" Height="400" Visibility="Collapsed">
+                <Border Background="LightGray" CornerRadius="200">
+                    <!-- Contenido del sidePanel -->
+                    <StackPanel Margin="1,0,0,0">
+                        <TextBlock FontSize="20" FontWeight="Bold">Zaragoza</TextBlock>
+                        <StackPanel Margin="0,10">
+                            <TextBlock x:Name="latitudeText">Latitud:</TextBlock>
+                            <TextBlock x:Name="LatitudText"></TextBlock>
+                        </StackPanel>
+                        <StackPanel Margin="0,10">
+                            <TextBlock x:Name="lenghtText">Longitud:</TextBlock>
+                            <TextBlock x:Name="LongitudText"></TextBlock>
+                        </StackPanel>
+                        <StackPanel Margin="0,10">
+                            <TextBlock x:Name="hourTypeText">Zona Horaria:</TextBlock>
+                            <TextBlock x:Name="TimeZoneText"></TextBlock>
+                        </StackPanel>
+                        <StackPanel Margin="0,10">
+                            <TextBlock x:Name="elevationText">Elevación:</TextBlock>
+                            <TextBlock x:Name="ElevationText"></TextBlock>
+                        </StackPanel>
+                        <!-- StackPanel para mostrar la hora -->
+                        <StackPanel Margin="0,10">
+                            <TextBlock x:Name="hourText">Hora:</TextBlock>
+                            <TextBlock x:Name="HourText"></TextBlock>
+                        </StackPanel>
+
+                        <!-- StackPanel para mostrar la temperatura -->
+                        <StackPanel Margin="0,10">
+                            <TextBlock x:Name="temperatureText">Temperatura:</TextBlock>
+                            <TextBlock x:Name="TemperatureText"></TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+
+            <!-- Barra de tareas en la parte inferior -->
+            <StatusBar Name="toolBar" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Visibility="Hidden">
+                <StatusBarItem>
+                    <Button x:Name="NotificationButton" Content="Notificaciones" Click="NotificationButton_Click">
+                        <Button.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock Text="Tienes 3 nuevas notificaciones." />
+                                </StackPanel>
+                            </ToolTip>
+                        </Button.ToolTip>
+                    </Button>
+                </StatusBarItem>
+            </StatusBar>
+            <Grid.Background>
+                <ImageBrush ImageSource="/Imagenes/Fondos/orilla.jpg"/>
+            </Grid.Background>
         </Grid>
+        <TextBlock x:Name="HourText1" Margin="875,236,0,0" TextWrapping="Wrap" Text="19:00" VerticalAlignment="Top" FontSize="72" Foreground="White" Height="152" FontFamily="PF Das Grotesk Pro" HorizontalAlignment="Left" Width="1022"/>
+
     </Grid>
+
+
+
+
 </Window>

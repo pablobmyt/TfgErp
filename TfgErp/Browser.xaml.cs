@@ -17,11 +17,23 @@ namespace TfgErp
     /// <summary>
     /// Lógica de interacción para Browser.xaml
     /// </summary>
-    public partial class Browser : Window
+    public partial class Browser : Window, IWindowWithIcon
     {
         public Browser()
         {
             InitializeComponent();
+
+        }
+
+        public ImageSource GetIcon()
+        {
+            return new BitmapImage(new Uri("https://cdn-icons-png.flaticon.com/512/6392/6392819.png", UriKind.RelativeOrAbsolute));
+        }
+
+        public string GetTitle()
+        {
+            // Retorna el título de la ventana
+            return "Browser by Vsoftware";
         }
     }
 }

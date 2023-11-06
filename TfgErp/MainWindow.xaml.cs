@@ -1,13 +1,16 @@
-﻿using System;
+﻿using Org.BouncyCastle.Asn1.X509;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -33,6 +36,14 @@ namespace TfgErp
         public MainWindow()
         {
             InitializeComponent();
+            initializeMethods();
+
+        }
+
+        private void initializeMethods()
+        {
+            SetRandomBackground();
+            textBox.Visibility = Visibility.Hidden;
             menuInicioSesion.IsOpen = true;
             fondoOscurecido.Visibility = Visibility.Visible;
             panelClima.IsEnabled = false;
@@ -41,13 +52,12 @@ namespace TfgErp
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
             timer.Start();
-
         }
 
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            HourText1.Text = DateTime.Now.ToString("HH:mm:ss");
+            HourText1.Text = DateTime.Now.ToString("HH:mm");
         }
 
 
@@ -107,16 +117,17 @@ namespace TfgErp
             menuInicioSesion.IsOpen = true;
             fondoOscurecido.Visibility = Visibility.Visible;
         }
-        private void CerrarPopup_Click(object sender, RoutedEventArgs e)
-        {
-            menuInicioSesion.IsOpen = false;
 
-        }
+        
         // Método para ocultar el menú de inicio de sesión y restaurar el fondo
         private void OcultarMenuInicioSesion()
         {
             menuInicioSesion.IsOpen = false;
             fondoOscurecido.Visibility = Visibility.Collapsed;
+            HourText1.Visibility = Visibility.Hidden;
+            textBox.Visibility = Visibility.Visible;
+            toolBar.Visibility = Visibility.Visible;
+            blurContainer.Effect = null;
         }
 
         // Evento de clic en el botón "Iniciar Sesión"
@@ -128,7 +139,73 @@ namespace TfgErp
             }
 
 
-            // Agrega aquí la lógica adicional después de iniciar sesión
+        }
+
+        private void NotificationButton_Click(object sender, RoutedEventArgs e)
+        {
+            var stackPanel = new StackPanel
+            {
+                Width = 400,
+                Height = 200,
+                Background = Brushes.White
+            };
+
+            var windowTypes = Assembly.GetExecutingAssembly().GetTypes()
+                                      .Where(t => typeof(IWindowWithIcon).IsAssignableFrom(t)
+                                               && !t.IsAbstract
+                                               && t != typeof(MainWindow)); // Excluir MainWindow
+
+            foreach (Type windowType in windowTypes)
+            {
+                // Evitar instanciar la MainWindow.
+                if (windowType.Name == "MainWindow")
+                    continue;
+
+                var windowInstance = (IWindowWithIcon)Activator.CreateInstance(windowType);
+
+                var windowButton = new Button
+                {
+                    Content = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Children =
+                {
+                    new Image
+                    {
+                        Source = windowInstance.GetIcon(),
+                        Width = 16,
+                        Height = 16,
+                        Margin = new Thickness(0, 0, 5, 0)
+                    },
+                    new TextBlock { Text = windowInstance.GetTitle() }
+                }
+                    },
+                    Margin = new Thickness(5)
+                };
+
+                windowButton.Click += (s, args) =>
+                {
+                    // No abrir MainWindow.
+                    if (windowType.Name != "MainWindow")
+                    {
+                        var window = (Window)windowInstance;
+                        window.Show();
+                    }
+                };
+
+                stackPanel.Children.Add(windowButton);
+            }
+
+            var popup = new Popup
+            {
+                PlacementTarget = sender as UIElement,
+                Placement = PlacementMode.Top,
+                StaysOpen = false,
+                Child = stackPanel
+            };
+
+            popup.IsOpen = true;
+            popup.IsOpen = true; // Abre el Popup
         }
 
         public void AddImageToGrid(string imagePath, int row, int column)
@@ -138,17 +215,85 @@ namespace TfgErp
 
             var image = new Image
             {
-                Source = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute))
+                Source = new BitmapImage(new Uri(FormatUrl(imagePath), UriKind.RelativeOrAbsolute))
             };
 
             Grid.SetRow(image, row);
             Grid.SetColumn(image, column);
 
-            var bitmap = image;  // Asume que esto es tu imagen.
-           // bitmap.Save("C:\\temp\\debugImage.png", System.Drawing.Imaging.ImageFormat.Png);
+            var bitmap = image;  
 
 
             ImageGrid.Children.Add(image);
+        }
+        private void ConfigureTaskBar(StackPanel stackPanel)
+        {
+            var shutdownButton = new Button
+            {
+                Content = "Apagar",
+                Margin = new Thickness(5)
+            };
+
+            var shutdownMenu = new ContextMenu();
+
+            var restartItem = new MenuItem
+            {
+                Header = "Reiniciar",
+            };
+            restartItem.Click += MenuItemRestart_Click;
+
+            var closeSessionItem = new MenuItem
+            {
+                Header = "Cerrar sesión",
+            };
+            closeSessionItem.Click += MenuItemCloseSession_Click;
+
+            shutdownMenu.Items.Add(restartItem);
+            shutdownMenu.Items.Add(closeSessionItem);
+
+            shutdownButton.ContextMenu = shutdownMenu;
+
+            stackPanel.Children.Add(shutdownButton);
+        }
+
+        // Método para reiniciar la aplicación.
+        private void MenuItemRestart_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+            Application.Current.Shutdown();
+        }
+
+        // Método para cerrar sesión (cierra la aplicación).
+        private void MenuItemCloseSession_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+
+        public static string FormatUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                throw new ArgumentException("La URL proporcionada es inválida.");
+            }
+
+            if (!url.StartsWith("https://"))
+            {
+                if (url.StartsWith("www."))
+                {
+                    url = "https://" + url;
+                }
+                else
+                {
+                    url = "https://www." + url;
+                }
+            }
+            else if (!url.StartsWith("https://www."))
+            {
+                url = "https://www." + url.Substring(8);
+            }
+
+            return url;
         }
 
         private void OnAddImageButtonClick(object sender, RoutedEventArgs e)
@@ -161,7 +306,6 @@ namespace TfgErp
                 {
                     LoadFavicon(url, nextRow, nextCol);
 
-                    // Actualizar la próxima posición disponible
                     nextCol++;
                     if (nextCol >= 4)
                     {
@@ -179,6 +323,40 @@ namespace TfgErp
                 MessageBox.Show("Por favor, ingresa una URL.");
             }
         }
+
+        private void SetRandomBackground()
+        {
+            
+            var assembly = Assembly.GetExecutingAssembly();
+
+            var resourceNames = assembly.GetManifestResourceNames();
+            string imagesFolder = "TfgErp.Imagenes.Fondos"; 
+            var images = resourceNames.Where(name => name.StartsWith(imagesFolder) && name.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (images.Count == 0)
+                return;
+
+            Random rnd = new Random();
+            string selectedResourceName = images[rnd.Next(images.Count)];
+
+            var resourceStream = assembly.GetManifestResourceStream(selectedResourceName);
+            if (resourceStream != null)
+            {
+                var imageSource = new BitmapImage();
+                imageSource.BeginInit();
+                imageSource.StreamSource = resourceStream;
+                imageSource.EndInit();
+
+                ImageBrush brush = new ImageBrush
+                {
+                    ImageSource = imageSource
+                };
+
+                this.Background = brush;
+            }
+        }
+
+
 
         private void LoadFavicon(string url, int row, int col)
         {

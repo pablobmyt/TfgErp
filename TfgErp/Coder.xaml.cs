@@ -22,7 +22,7 @@ namespace TfgErp
     /// <summary>
     /// Lógica de interacción para Coder.xaml
     /// </summary>
-    public partial class Coder : Window
+    public partial class Coder : Window, IWindowWithIcon
     {
 
         ScriptEngine engine = Python.CreateEngine();
@@ -47,6 +47,17 @@ resultado = sumar_numeros(3, 4)
             textRange.Text = textoInicial;
 
 
+        }
+
+        public ImageSource GetIcon()
+        {
+            return new BitmapImage(new Uri("https://cdn-icons-png.flaticon.com/512/69/69045.png", UriKind.RelativeOrAbsolute));
+        }
+
+        public string GetTitle()
+        {
+            // Retorna el título de la ventana
+            return "Coder by Vsoftware";
         }
 
         private void btn_Click(object sender, RoutedEventArgs e)

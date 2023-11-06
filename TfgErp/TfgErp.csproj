@@ -9,11 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Imagenes\Fondos\cabana.jpg" />
+    <None Remove="Imagenes\Fondos\cabaña.jpg" />
+    <None Remove="Imagenes\Fondos\canon.jpg" />
+    <None Remove="Imagenes\Fondos\cañon.jpg" />
+    <None Remove="Imagenes\Fondos\maderas.jpg" />
     <None Remove="Imagenes\Fondos\orilla.jpg" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CefSharp.Wpf" Version="117.2.40" />
+    <PackageReference Include="EO.WebBrowser" Version="23.3.77" />
     <PackageReference Include="IronPython" Version="3.4.1" />
     <PackageReference Include="MySql.Data" Version="8.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -22,7 +28,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Imagenes\Fondos\cabana.jpg" />
+    <Resource Include="Imagenes\Fondos\cabaña.jpg" />
+    <Resource Include="Imagenes\Fondos\canon.jpg" />
+    <Resource Include="Imagenes\Fondos\cañon.jpg" />
+    <Resource Include="Imagenes\Fondos\maderas.jpg" />
     <Resource Include="Imagenes\Fondos\orilla.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Imagenes\Iconos\" />
+    <Folder Include="Fuentes\" />
   </ItemGroup>
 
 </Project>
