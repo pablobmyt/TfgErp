@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Asn1.X509;
+﻿using EO.WebBrowser;
+using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,6 +43,7 @@ namespace TfgErp
 
         private void initializeMethods()
         {
+            MainGrid.MouseRightButtonDown += Grid_MouseRightButtonDown;
             SetRandomBackground();
             textBox.Visibility = Visibility.Hidden;
             menuInicioSesion.IsOpen = true;
@@ -61,9 +63,82 @@ namespace TfgErp
         }
 
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void Grid_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+            var grid = sender as Grid;
+            CreateAndShowContextMenu(grid);
+        }
 
+        private void CreateAndShowContextMenu(Grid grid)
+        {
+            // Comprobar si el Grid ya tiene un menú contextual
+            if (grid.ContextMenu == null)
+            {
+                var contextMenu = new System.Windows.Controls.ContextMenu();
+
+                foreach (var item in getWindowsInstances())
+                {
+
+                    var menuItem = new System.Windows.Controls.MenuItem { Header = item.GetTitle };
+                    menuItem.Click += MenuItem_Click; // Añadir manejador de eventos
+                    contextMenu.Items.Add(menuItem);
+                }
+
+                // Mostrar el menú contextual
+                grid.ContextMenu.PlacementTarget = grid;
+                grid.ContextMenu.IsOpen = true;
+            }
+        }
+
+
+
+
+
+        private List<IWindowWithIcon?> getWindowsInstances()
+        {
+            List<IWindowWithIcon?> windows = new List<IWindowWithIcon?>();
+
+            var windowTypes = Assembly.GetExecutingAssembly().GetTypes()
+                                      .Where(t => typeof(IWindowWithIcon).IsAssignableFrom(t)
+                                               && !t.IsAbstract
+                                               && t != typeof(MainWindow)); // Excluir MainWindow
+
+            foreach (Type windowType in windowTypes)
+            {
+                // Evitar instanciar la MainWindow.
+                if (windowType.Name == "MainWindow")
+                    continue;
+
+                var windowInstance = (IWindowWithIcon)Activator.CreateInstance(windowType);
+                windows.Add(windowInstance);
+               
+
+               
+
+            }
+            return windows;
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.MenuItem clickedItem = sender as System.Windows.Controls.MenuItem;
+
+            if (clickedItem != null)
+            {
+                string windowTitle = clickedItem.Header.ToString();
+
+                Window? windowToOpen = (Window)getWindowsInstances().FirstOrDefault(window => window.GetTitle().Equals(windowTitle));
+
+                // Si la ventana existe, mostrarla
+                if (windowToOpen != null)
+                {
+                    windowToOpen.Show(); 
+                }
+                else
+                {
+                    MessageBox.Show("Ventana no encontrada.");
+                }
+            }
         }
 
         private void MostrarClima(object sender, RoutedEventArgs e)
@@ -208,66 +283,7 @@ namespace TfgErp
             popup.IsOpen = true; // Abre el Popup
         }
 
-        public void AddImageToGrid(string imagePath, int row, int column)
-        {
-            if (row < 0 || row > 2 || column < 0 || column > 2)
-                throw new ArgumentException("Row and Column values must be between 0 and 2.");
 
-            var image = new Image
-            {
-                Source = new BitmapImage(new Uri(FormatUrl(imagePath), UriKind.RelativeOrAbsolute))
-            };
-
-            Grid.SetRow(image, row);
-            Grid.SetColumn(image, column);
-
-            var bitmap = image;  
-
-
-            ImageGrid.Children.Add(image);
-        }
-        private void ConfigureTaskBar(StackPanel stackPanel)
-        {
-            var shutdownButton = new Button
-            {
-                Content = "Apagar",
-                Margin = new Thickness(5)
-            };
-
-            var shutdownMenu = new ContextMenu();
-
-            var restartItem = new MenuItem
-            {
-                Header = "Reiniciar",
-            };
-            restartItem.Click += MenuItemRestart_Click;
-
-            var closeSessionItem = new MenuItem
-            {
-                Header = "Cerrar sesión",
-            };
-            closeSessionItem.Click += MenuItemCloseSession_Click;
-
-            shutdownMenu.Items.Add(restartItem);
-            shutdownMenu.Items.Add(closeSessionItem);
-
-            shutdownButton.ContextMenu = shutdownMenu;
-
-            stackPanel.Children.Add(shutdownButton);
-        }
-
-        // Método para reiniciar la aplicación.
-        private void MenuItemRestart_Click(object sender, RoutedEventArgs e)
-        {
-            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
-            Application.Current.Shutdown();
-        }
-
-        // Método para cerrar sesión (cierra la aplicación).
-        private void MenuItemCloseSession_Click(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Shutdown();
-        }
 
 
         public static string FormatUrl(string url)
@@ -363,7 +379,7 @@ namespace TfgErp
             try
             {
                 var client = new WebClient();
-                var uri = new Uri(new Uri(url), "/favicon.ico");
+                var uri = new Uri(new Uri(FormatUrl(url)), "/favicon.ico");
                 var faviconUrl = uri.AbsoluteUri;
                 var stream = client.OpenRead(faviconUrl);
                 var bitmap = new BitmapImage();

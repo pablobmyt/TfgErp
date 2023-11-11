@@ -1,0 +1,23 @@
+﻿<Window x:Class="TfgErp.Consola"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TfgErp"
+        mc:Ignorable="d"
+        Title="Consola" Height="450" Width="800">
+    <Grid>
+        <TextBox x:Name="consoleTextBox"
+                 Background="#E5000000"
+                 Foreground="Green"
+                 FontFamily="Consolas"
+                 FontSize="16"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 AcceptsTab="True"
+                 VerticalScrollBarVisibility="Auto"
+                 HorizontalScrollBarVisibility="Auto"
+                 TextChanged="consoleTextBox_TextChanged"
+                 PreviewKeyDown="consoleTextBox_PreviewKeyDown"/>
+    </Grid>
+</Window>

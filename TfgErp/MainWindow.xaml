@@ -8,7 +8,7 @@
         Title="MainWindow" Height="771" Width="1664" WindowState="Maximized" WindowStyle="None">
 
 
-    <Grid>
+    <Grid Name="MainGrid" MouseRightButtonDown="Grid_MouseRightButtonDown">
 
 
         <Grid Name="blurContainer">
@@ -152,9 +152,9 @@
 
 
             <!-- Barra de tareas en la parte inferior -->
-            <StatusBar Name="toolBar" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Visibility="Hidden">
+            <StatusBar Name="toolBar" VerticalAlignment="Bottom" Visibility="Hidden">
                 <StatusBarItem>
-                    <Button x:Name="NotificationButton" Content="Notificaciones" Click="NotificationButton_Click">
+                    <Button x:Name="NotificationButton" Content="⊞" Click="NotificationButton_Click">
                         <Button.ToolTip>
                             <ToolTip>
                                 <StackPanel>
@@ -164,6 +164,8 @@
                         </Button.ToolTip>
                     </Button>
                 </StatusBarItem>
+
+
             </StatusBar>
             <Grid.Background>
                 <ImageBrush ImageSource="/Imagenes/Fondos/orilla.jpg"/>
