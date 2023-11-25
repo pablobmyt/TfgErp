@@ -15,6 +15,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Threading;
+using System.Drawing;
+using EO.Internal;
+using static System.Net.Mime.MediaTypeNames;
+using System.Management;
+
 
 namespace TfgErp
 {
@@ -23,6 +28,8 @@ namespace TfgErp
     /// </summary>
     public partial class Consola : Window, IWindowWithIcon
     {
+        private TextPointer hostPromptPosition;
+
         public Consola()
         {
             InitializeComponent();
@@ -33,36 +40,41 @@ namespace TfgErp
         {
             if (e.Key == Key.Enter)
             {
-                // Divide el texto en líneas
-                var lines = consoleTextBox.Text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-
-                // Encuentra la última línea no vacía que será el comando
-                var lastCommand = lines.LastOrDefault(line => !string.IsNullOrWhiteSpace(line));
-
-                if (!string.IsNullOrWhiteSpace(lastCommand))
-                {
-                    lastCommand = lastCommand.Replace("host:¬\\", "").Trim();
-
-                    ExecuteCommand(lastCommand);
-                }
-
-                // Mueve el cursor al final del texto y añade una nueva línea
-                consoleTextBox.CaretIndex = consoleTextBox.Text.Length;
-                consoleTextBox.AppendText(Environment.NewLine);
-
-                // Muestra el prompt para el próximo comando
-                PrintPrompt();
-
+                HandleEnterKey();
+                e.Handled = true;
+            }
+            else if ((e.Key == Key.Back || e.Key == Key.Delete) && !CanEditText())
+            {
                 e.Handled = true;
             }
         }
+        private void HandleEnterKey()
+        {
+            string command = GetCurrentCommand();
+            if (!string.IsNullOrWhiteSpace(command))
+            {
+                command = command.Trim();
+                ExecuteCommand(command);
+            }
+            PrintPrompt();
+        }
+        private bool CanEditText()
+        {
+            return consoleTextBox.CaretPosition.CompareTo(hostPromptPosition) > 0;
+        }
 
+        private string GetCurrentCommand()
+        {
+            TextRange textRange = new TextRange(hostPromptPosition, consoleTextBox.Document.ContentEnd);
+            return textRange.Text.Replace("host:¬\\ ", "").Trim();
+        }
 
         private string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
         private void ExecuteCommand(string command)
         {
-            
+            var textRange = new TextRange(hostPromptPosition, consoleTextBox.Document.ContentEnd);
+             command = textRange.Text.Trim();
             command = command.Trim().Replace("\n", "");
 
             // Separa el comando y los argumentos
@@ -101,10 +113,40 @@ namespace TfgErp
                     break;
                 default:
                     consoleTextBox.AppendText("\nComando no reconocido.");
+
                     break;
             }
+            AppendText("\n", Colors.Transparent); // Agrega un salto de línea con texto transparente.
 
         }
+
+
+        private void AppendText(string text, System.Windows.Media.Color color)
+        {
+            Run run = new Run(text)
+            {
+                Foreground = new SolidColorBrush(color)
+            };
+
+            if (consoleTextBox.Document.Blocks.LastBlock is Paragraph para)
+            {
+                para.Inlines.Add(run);
+            }
+            else
+            {
+                Paragraph paragraph = new Paragraph(run);
+                consoleTextBox.Document.Blocks.Add(paragraph);
+            }
+
+            // Mueve el cursor al final después de agregar texto.
+            MoveCursorToEnd();
+        }
+        private void MoveCursorToEnd()
+        {
+            consoleTextBox.CaretPosition = consoleTextBox.Document.ContentEnd;
+            consoleTextBox.ScrollToEnd();
+        }
+
 
         public void exitApp()
         {
@@ -123,6 +165,30 @@ namespace TfgErp
                     consoleTextBox.AppendText("\n" + ip.ToString());
                 }
             }
+        }
+
+        private void AppendColoredText(string text, System.Windows.Media.Color color)
+        {
+            Run coloredText = new Run(text)
+            {
+                Foreground = new SolidColorBrush(color)
+            };
+
+            // Comprueba si el último bloque es un párrafo y agrega el texto allí
+            if (consoleTextBox.Document.Blocks.LastBlock is Paragraph lastParagraph)
+            {
+                lastParagraph.Inlines.Add(coloredText);
+            }
+            else
+            {
+                // Si no hay un último párrafo, crea uno nuevo
+                Paragraph paragraph = new Paragraph(coloredText);
+                paragraph.Margin = new Thickness(0); // Remueve el espacio extra entre líneas
+                consoleTextBox.Document.Blocks.Add(paragraph);
+            }
+
+            // Mueve el cursor al final después de agregar texto
+            MoveCursorToEnd();
         }
 
         private void ChangeDirectory(string path)
@@ -147,36 +213,109 @@ namespace TfgErp
 
         private void frintInfo()
         {
-            consoleTextBox.AppendText("\n" + @"
-                    -/oyddmdhs+:.                pablo@nimbusos
-               -odNMMMMMMMMNNmhy+-`             ----------------
-             -yNMMMMMMMMMMMNNNmmdhy+-           OS: NimbusOS v1.0
-           `omMMMMMMMMMMMMNmdmmmmddhhy/`        Host: Nimbus Cloud Compute v42
-          omMMMMMMMMMMMNhhyyyohmdddhhhdo`       Kernel: 5.4.23-nimbus-lts
-         .ydMMMMMMMMMMdhs++so/smdddhhhhdm+`     Uptime: 1 day, 4 hours, 37 mins
-        oyhdmNMMMMMMMNdyooydmddddhhhhyhNMs.     Packages: 1024 (pacman)
-       :omdddhhhhdmMNhhhhhhhdmNNNmhhhyymMh.     Shell: bash 5.0.16
-       .ydmmddmmdmNMNdmmmmddmNMNmdmmdyhhdm.     Resolution: 1920x1080
-        :dmmmmdmmdddmNNNNmmdmNNmdddmmdyhs:      DE: NimbusDE
-         /dmmmmdmddmddNNNNmmmNNmdddmmdyo.       WM: NimbusWM
-           /dmmmmdmmdmddNNNNNNmmdmmdmNh-        WM Theme: Nimbus
-            `+ydmmmdmmdmddNNNNmmdmmdyo:         Theme: Nimbus-Light [GTK2/3]
-               ./ymmdmmdmmdmddmmdys+:`          Icons: Nimbus [GTK2/3]
-                   `.-/+oossoo+/-`              Terminal: nimbus-terminal
+            // ASCII art para el símbolo "¬"
+            string asciiArt = @"
+                                                                                
+                        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@,                   
+                       /@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#                   
+                       /@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#                   
+                       /@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#                   
+                        &@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#                   
+                                               &@@@@@@@@@@@@#                   
+                                               &@@@@@@@@@@@@#                   
+                                               &@@@@@@@@@@@@#                   
+                                                .%&&&&&&&&#.                   
+";
 
-");
+            // Obteniendo información del sistema real
+            string hostName = Dns.GetHostName();
+            OperatingSystem osInfo = Environment.OSVersion;
+            TimeSpan uptime = TimeSpan.FromMilliseconds(Environment.TickCount);
+
+            // Formateando el tiempo de actividad
+            string uptimeString = string.Format("{0} days, {1} hours, {2} mins",
+                                                uptime.Days, uptime.Hours, uptime.Minutes);
+
+            // Consiguiendo la cantidad de paquetes (este ejemplo asume que son aplicaciones instaladas en Windows)
+            int packageCount = GetPackageCount();
+
+            // Obteniendo información adicional del sistema
+            string shellVersion = GetShellVersion();
+            string resolution = GetScreenResolution();
+            string de = GetDesktopEnvironment();
+            string wmTheme = GetWindowManagerTheme();
+
+            // Construyendo la información para mostrar
+            string info = asciiArt +
+                          $"Host: {hostName}\n" +
+                          $"OS: {osInfo.Platform} v{osInfo.Version}\n" +
+                          $"Uptime: {uptimeString}\n" +
+                          $"Packages: {packageCount} (pacman)\n" +
+                          $"Shell: {shellVersion}\n" +
+                          $"Resolution: {resolution}\n" +
+                          $"DE: {de}\n" +
+                          $"WM Theme: {wmTheme}\n";
+
+            // Agregar la información al consoleTextBox
+            consoleTextBox.AppendText(info);
+        }
+
+        private int GetPackageCount()
+        {
+            // Lógica para obtener la cantidad de aplicaciones instaladas en Windows
+            string registry_key = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            using (Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(registry_key))
+            {
+                return key.GetSubKeyNames().Length;
+            }
+        }
+
+        private string GetShellVersion()
+        {
+            // Reemplazar con la lógica adecuada para obtener la versión del shell
+            return "PowerShell 7.1";
+        }
+
+        private string GetScreenResolution()
+        {
+            // Obteniendo la resolución de pantalla actual
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("\\root\\cimv2", "SELECT * FROM Win32_VideoController");
+
+            foreach (ManagementObject obj in searcher.Get())
+            {
+                return $"{obj["CurrentHorizontalResolution"]}x{obj["CurrentVerticalResolution"]}";
+            }
+            return "Unknown";
+        }
+
+        private string GetDesktopEnvironment()
+        {
+            // Reemplazar con la lógica adecuada para obtener el entorno de escritorio
+            return "Windows Desktop";
+        }
+
+        private string GetWindowManagerTheme()
+        {
+            // Reemplazar con la lógica adecuada para obtener el tema del gestor de ventanas
+            return "Aero";
         }
 
         private void PrintPrompt()
         {
-            string HOST = "host" + ":¬";
+            string HOST = "host:¬\\ ";
             string promptPath = currentDirectory.Replace(@"C:\Users\pabli\source\repos\TfgErp\TfgErp\bin\Debug\net6.0-windows", "");
-            string modifiedPrompt = promptPath.Replace("\\", "/");
+            string[] pathParts = promptPath.Split('\\');
 
-
-
-            consoleTextBox.AppendText(HOST + promptPath);
-        }
+            // Agrega el texto del host en azul y el path en verde, con barras en blanco
+            AppendColoredText(HOST, System.Windows.Media.Color.FromRgb(85, 255, 255));
+            foreach (var part in pathParts)
+            {
+                AppendColoredText(part, System.Windows.Media.Color.FromRgb(85, 255, 85));
+                AppendColoredText("", System.Windows.Media.Color.FromRgb(255, 255, 255));
+            }
+            hostPromptPosition = consoleTextBox.CaretPosition.GetPositionAtOffset(-1); // Actualiza la posición después de agregar el prompt
+        
+    }
 
 
         private void ListDirectoryContents()
@@ -191,8 +330,8 @@ namespace TfgErp
         private void ClearTerminal()
         {
 
-            consoleTextBox.Text = string.Empty;
-            
+            consoleTextBox.Document.Blocks.Clear();
+
 
         }
 

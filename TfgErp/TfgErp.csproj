@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Fuentes\Roboto-BlackItalic.ttf" />
     <None Remove="Imagenes\Fondos\cabana.jpg" />
     <None Remove="Imagenes\Fondos\cabaña.jpg" />
     <None Remove="Imagenes\Fondos\canon.jpg" />
@@ -20,14 +21,17 @@
   <ItemGroup>
     <PackageReference Include="CefSharp.Wpf" Version="117.2.40" />
     <PackageReference Include="EO.WebBrowser" Version="23.3.77" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.1" />
     <PackageReference Include="IronPython" Version="3.4.1" />
     <PackageReference Include="MySql.Data" Version="8.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SendGrid" Version="9.28.1" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Fuentes\Roboto-BlackItalic.ttf" />
     <Resource Include="Imagenes\Fondos\cabana.jpg" />
     <Resource Include="Imagenes\Fondos\cabaña.jpg" />
     <Resource Include="Imagenes\Fondos\canon.jpg" />
@@ -38,7 +42,6 @@
 
   <ItemGroup>
     <Folder Include="Imagenes\Iconos\" />
-    <Folder Include="Fuentes\" />
   </ItemGroup>
 
 </Project>

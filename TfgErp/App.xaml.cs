@@ -23,13 +23,14 @@ namespace TfgErp
             Task.Run(() =>
             {
               
-                Thread.Sleep(5000);
+                Thread.Sleep(6000); //8000 es la medida perfecta, se baja duracion para agilizar desarrollo
 
               
                 Dispatcher.Invoke(() =>
                 {
                     MainWindow mainWindow = new MainWindow();
                     mainWindow.Show(); // Muestra la ventana principal.
+                    Application.Current.MainWindow.Close();
                 });
             });
 

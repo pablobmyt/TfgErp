@@ -16,6 +16,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -31,6 +32,11 @@ namespace TfgErp
     {
         private int nextRow = 0;
         private int nextCol = 0;
+        private static string TERMINAL_TITLE = "System Terminal";
+        public double FullScreenWidth { get; set; }
+        public double FullScreenHeight { get; set; }
+
+
 
         private DispatcherTimer timer;
 
@@ -38,6 +44,10 @@ namespace TfgErp
         {
             InitializeComponent();
             initializeMethods();
+
+            FullScreenWidth = SystemParameters.FullPrimaryScreenWidth;
+            FullScreenHeight = SystemParameters.FullPrimaryScreenHeight;
+
 
         }
 
@@ -60,8 +70,92 @@ namespace TfgErp
         private void Timer_Tick(object sender, EventArgs e)
         {
             HourText1.Text = DateTime.Now.ToString("HH:mm");
+            HourText2.Text = DateTime.Now.ToString("HH:mm");
+
         }
 
+
+        private void ShutdownButton_Click(object sender, RoutedEventArgs e)
+        {
+            shutdownPopup.IsOpen = true;
+        }
+
+        private void ShutdownSystem_Click(object sender, RoutedEventArgs e)
+        {
+            shutdownAnimationPopup.IsOpen = true;
+
+            CreateLoadingDots();
+
+            AnimateText();
+
+            StartLoadingAnimation();
+
+            var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+            timer.Tick += (s, args) =>
+            {
+                timer.Stop();
+                Application.Current.Shutdown();
+            };
+            timer.Start();
+        }
+
+        private void CreateLoadingDots()
+        {
+            int dotsCount = 8;
+            double radius = 40;
+            for (int i = 0; i < dotsCount; i++)
+            {
+                double angle = i * Math.PI * 2 / dotsCount;
+                double x = radius + radius * Math.Cos(angle);
+                double y = radius + radius * Math.Sin(angle);
+
+                var dot = new Ellipse
+                {
+                    Width = 10,
+                    Height = 10,
+                    Fill = Brushes.White
+                };
+
+                Canvas.SetLeft(dot, x);
+                Canvas.SetTop(dot, y);
+                loadingCanvas.Children.Add(dot);
+            }
+        }
+
+
+        private void StartLoadingAnimation()
+        {
+            var rotateTransform = new RotateTransform();
+            loadingCanvas.RenderTransform = rotateTransform;
+            loadingCanvas.RenderTransformOrigin = new Point(0.5, 0.5);
+
+            var rotateAnimation = new DoubleAnimation(0, 360, new Duration(TimeSpan.FromSeconds(1)))
+            {
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+
+            rotateTransform.BeginAnimation(RotateTransform.AngleProperty, rotateAnimation);
+        }
+
+
+        private void AnimateText()
+        {
+            int count = 0;
+            var animationTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(0.5) };
+            animationTimer.Tick += (s, args) =>
+            {
+                shutdownText.Text = "Apagando Equipo" + new string('.', count);
+                count = (count + 1) % 4;
+            };
+            animationTimer.Start();
+        }
+
+
+        private void CloseSession_Click(object sender, RoutedEventArgs e)
+        {
+            
+            shutdownPopup.IsOpen = false;
+        }
 
         private void Grid_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -76,19 +170,27 @@ namespace TfgErp
             {
                 var contextMenu = new System.Windows.Controls.ContextMenu();
 
-                foreach (var item in getWindowsInstances())
+                foreach (IWindowWithIcon item in getWindowsInstances())
                 {
+                   if(item.GetTitle() == TERMINAL_TITLE)
+                    {
+                        var menuItem = new System.Windows.Controls.MenuItem { Header = item.GetTitle() };
+                        menuItem.Click += MenuItem_Click; // Añadir manejador de eventos
+                        contextMenu.Items.Add(menuItem);
 
-                    var menuItem = new System.Windows.Controls.MenuItem { Header = item.GetTitle };
-                    menuItem.Click += MenuItem_Click; // Añadir manejador de eventos
-                    contextMenu.Items.Add(menuItem);
+                    }
+
                 }
+
+                // Asignar el nuevo menú contextual al grid
+                grid.ContextMenu = contextMenu;
 
                 // Mostrar el menú contextual
                 grid.ContextMenu.PlacementTarget = grid;
                 grid.ContextMenu.IsOpen = true;
             }
         }
+
 
 
 
@@ -232,7 +334,6 @@ namespace TfgErp
 
             foreach (Type windowType in windowTypes)
             {
-                // Evitar instanciar la MainWindow.
                 if (windowType.Name == "MainWindow")
                     continue;
 
@@ -252,15 +353,25 @@ namespace TfgErp
                         Height = 16,
                         Margin = new Thickness(0, 0, 5, 0)
                     },
-                    new TextBlock { Text = windowInstance.GetTitle() }
+                    new TextBlock {
+                        Text = windowInstance.GetTitle(),
+                        FontSize = 12
+                    }
                 }
                     },
-                    Margin = new Thickness(5)
+                    Margin = new Thickness(5),
+                    // Estilos personalizados aquí
+                    Background = new LinearGradientBrush(Colors.LightBlue, Colors.SlateBlue, 45.0),
+                    Style = (Style)FindResource("RoundedButton"),
+                    Padding = new Thickness(10)
                 };
+
+                // Animaciones al pasar el ratón (opcional)
+                windowButton.MouseEnter += (s, args) => windowButton.Background = Brushes.LightSkyBlue;
+                windowButton.MouseLeave += (s, args) => windowButton.Background = new LinearGradientBrush(Colors.LightBlue, Colors.SlateBlue, 45.0);
 
                 windowButton.Click += (s, args) =>
                 {
-                    // No abrir MainWindow.
                     if (windowType.Name != "MainWindow")
                     {
                         var window = (Window)windowInstance;
@@ -280,8 +391,8 @@ namespace TfgErp
             };
 
             popup.IsOpen = true;
-            popup.IsOpen = true; // Abre el Popup
         }
+
 
 
 
@@ -389,7 +500,7 @@ namespace TfgErp
 
                 var imageWithUrl = new ImageWithUrl
                 {
-                    Url = url
+                    Url = FormatUrl(url)
                 };
                 imageWithUrl.SetImage(bitmap);
 

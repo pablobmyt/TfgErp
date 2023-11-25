@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace TfgErp
 {
@@ -19,15 +20,35 @@ namespace TfgErp
     /// </summary>
     public partial class SplashScreen : Window
     {
+        private string fullText = "Desarrollado por Pablo Matta con 💟";
+        private int textIndex = 0;
+        private DispatcherTimer typingTimer;
         public SplashScreen()
         {
             InitializeComponent();
+            StartTypingAnimation();
+
         }
-        public void CloseSplashScreen()
+
+        private void StartTypingAnimation()
         {
-            this.Close();
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
+            typingTimer = new DispatcherTimer();
+            typingTimer.Interval = TimeSpan.FromMilliseconds(50); // Ajusta la velocidad según necesites
+            typingTimer.Tick += TypingTimer_Tick;
+            typingTimer.Start();
+        }
+
+        private void TypingTimer_Tick(object sender, EventArgs e)
+        {
+            if (textIndex < fullText.Length)
+            {
+                animatedTextBlock.Text += fullText[textIndex];
+                textIndex++;
+            }
+            else
+            {
+                typingTimer.Stop();
+            }
         }
     }
 }

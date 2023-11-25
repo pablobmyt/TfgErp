@@ -3,12 +3,47 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:eo="http://schemas.essentialobjects.com/wpf/"
-
-        xmlns:local="clr-namespace:TfgErp"
         mc:Ignorable="d"
         Title="Browser" Height="450" Width="800">
+    <Window.Resources>
+        <!-- Estilo para los botones -->
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="LightBlue"/>
+            <Setter Property="BorderThickness" Value="0,0,0,2"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid>
-        <WebBrowser Name="webBrowser" />
+        <!-- Barra de herramientas del navegador -->
+        <DockPanel LastChildFill="True">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+                <Button Style="{StaticResource ButtonStyle}" Content="Atrás" Click="Back_Click"/>
+                <Button Style="{StaticResource ButtonStyle}" Content="Adelante" Click="Forward_Click"/>
+                <Button Style="{StaticResource ButtonStyle}" Content="Recargar" Click="Reload_Click"/>
+                <Button Style="{StaticResource ButtonStyle}" Content="Inicio" Click="Home_Click"/>
+                <TextBox Name="UrlBox" Width="200" KeyDown="UrlBox_KeyDown" Margin="5"/>
+                <Button Style="{StaticResource ButtonStyle}" Content="Ir" Click="Go_Click"/>
+            </StackPanel>
+
+            <!-- Área de visualización del navegador -->
+            <WebBrowser Name="webBrowser" DockPanel.Dock="Bottom"/>
+        </DockPanel>
     </Grid>
 </Window>
